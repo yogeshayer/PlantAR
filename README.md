@@ -16,8 +16,8 @@ Diya Chautaut
 
 
 ##  Project Links
-- **Trello Board (Sprint 0):** [Insert Trello link here]  
-- **Zoom Link:** [Insert Zoom recurring link here]  
+- **Trello Board (Sprint 0):** https://trello.com/invite/b/68bcc6a0b6ca9b06becc94d4/ATTI8d12feb311a50893dd854b1a5c699e271515EC0B/ar-science-tool
+- **Zoom Link:** https://us06web.zoom.us/j/5291182514?pwd=yqPdYWBgbsxzdKCy4Dwy5NTQDtivMG.1&omn=89486062939
 
 
 
