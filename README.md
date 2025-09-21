@@ -1,28 +1,43 @@
-# AR Science Tool – Project I-16
+# PlantAR: An Interactive Learning Tool  
 
-**Course:** CSCE 4901 – Capstone 1  
-**Project Goal:** Create an AR (augmented reality) tool that runs on phones to help kids learn about and explore different kinds of plants and their parts (e.g., leaves, roots, flowers).  
-**Audience:** Elementary and middle school students  
+## Overview  
+PlantAR is an Augmented Reality (AR) mobile application designed to help **elementary and middle school students (ages 8–14)** learn plant biology in an engaging, hands-on way. By pointing their mobile device at a target image, students can view and interact with a **3D model of a plant** — rotating, zooming, and tapping on different parts (roots, stem, leaves, flowers) to reveal names and functions.  
 
+##  Team  
+- Yogesh Ayer  
+- Yam Karki  
+- Diya Chataut  
+- Abhie Koirala  
+- Ashish Pudasaini  
 
+##  Problem Statement  
+Traditional textbooks often use static images to teach complex biological structures, which can fail to engage students. PlantAR solves this by offering a **3D interactive AR experience**, making learning more **memorable, intuitive, and effective**.  
 
-##  Team Members
-Yogesh Ayer
-Ashish Pudasaini
-Abhie Koirala
-YamKumar Karki
-Diya Chautaut
+##  Current Status  
+- **Sprint 0**: Completed (requirements gathered, project environment setup, repo initialized).  
+- **Sprint 1**: Starting (focus: basic image tracking and initial 3D model rendering).
+  
+##  System Requirements  
+- **Mobile Device**: iOS (ARKit 4.0+, iPhone 8+) or Android (ARCore 1.0+ supported devices).  
+- **Development Platform**: Unity 2021.3 LTS or later.  
+- **AR Framework**: AR Foundation, ARKit, ARCore.  
+- **Assets**: 3D plant models and target images for tracking.  
 
+---
 
+##  Features (MVP)  
+- **F1**: Image Tracking (recognize physical target image).  
+- **F2**: 3D Model Rendering (plant model locked to target).  
+- **F3**: Model Manipulation (rotate/zoom).  
+- **F4**: Interactive Parts (tap on plant parts).  
+- **F5**: Information Display (popup with names & functions).  
 
-##  Project Links
-- **Trello Board (Sprint 0):** https://trello.com/invite/b/68bcc6a0b6ca9b06becc94d4/ATTI8d12feb311a50893dd854b1a5c699e271515EC0B/ar-science-tool
-- **Zoom Link:** https://us06web.zoom.us/j/5291182514?pwd=yqPdYWBgbsxzdKCy4Dwy5NTQDtivMG.1&omn=89486062939
+Future features include multiple plant models (F8) and teacher preview mode (F9).  
 
-
-
-##  Sprint 0 Deliverables
-- Repo created with README, license, and .gitignore.  
-- Trello board created with columns: Icebox | Backlog | Sprint 0 – To Do | In Progress | In Review | Done.  
-- Sprint 0 cards populated (Charter, Roles, Repo setup, Requirements, Zoom).  
-- Zoom recurring link added for team sync + instructor meetings.  
+##  Setup Instructions  
+1. Install **Unity 2021.3 LTS** (or later).  
+2. Add **AR Foundation**, **ARKit XR Plugin**, and **ARCore XR Plugin** via Unity Package Manager.  
+3. Clone the repository:  
+   ```bash
+   git clone <repo-url>
+   cd PlantAR
