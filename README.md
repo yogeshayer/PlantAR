@@ -41,3 +41,5 @@ Future features include multiple plant models (F8) and teacher preview mode (F9)
    ```bash
    git clone <repo-url>
    cd PlantAR
+## Trello Link
+https://trello.com/c/MJc6xDBm/16-readme-file
