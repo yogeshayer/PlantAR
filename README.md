@@ -41,5 +41,49 @@ Future features include multiple plant models (F8) and teacher preview mode (F9)
    ```bash
    git clone <repo-url>
    cd PlantAR
+
+## 📱 How to Run and Test the App Using Expo Go  
+
+> 💡 *This guide is for running the PlantAR React Native (UI) portion using Expo Go for fast mobile testing.*
+
+### 1️⃣ Install Requirements  
+Make sure you have:  
+- **Node.js** (version 18 or 20 recommended)  
+- **npm** (comes with Node.js)  
+- **Expo CLI tools** (no global install needed — runs via `npx`)  
+
+### 2️⃣ Open the Project Folder  
+Open a terminal or command prompt in the project’s root directory:  
+```bash
+cd plantar-ui-main
+```
+
+### 3️⃣ Install Dependencies  
+Install all required project packages:  
+```bash
+npm install
+```
+
+### 4️⃣ Start the Expo Development Server  
+Launch the project using a **tunnel** (works anywhere, even across networks):  
+```bash
+npx expo start --tunnel -c
+```
+This starts the **Metro bundler**. The terminal will display a **QR code** and may also open the **Expo Dev Tools** in your browser.  
+
+### 5️⃣ Open the App on Your Phone  
+1. Download **Expo Go** from the App Store or Google Play.  
+2. Scan the QR code displayed in the terminal:  
+   - **Android:** Open Expo Go → tap **“Scan QR Code”**.  
+   - **iOS:** Open your **Camera app** → tap the Expo link when prompted.  
+3. The app will automatically load and run on your phone within Expo Go.  
+
+
+
+### 💡 Tips  
+- Press **r** in the terminal to reload the app.  
+- Press **c** to toggle the QR code view.  
+- Press **Ctrl + C** to stop the development server.  
+
 ## Trello Link
 https://trello.com/c/MJc6xDBm/16-readme-file
