@@ -1,89 +1,151 @@
-# PlantAR: An Interactive Learning Tool  
+# PlantAR: An Interactive AR Learning Tool
 
-## Overview  
-PlantAR is an Augmented Reality (AR) mobile application designed to help **elementary and middle school students (ages 8–14)** learn plant biology in an engaging, hands-on way. By pointing their mobile device at a target image, students can view and interact with a **3D model of a plant** — rotating, zooming, and tapping on different parts (roots, stem, leaves, flowers) to reveal names and functions.  
-
-##  Team  
-- Yogesh Ayer  
-- Yam Karki  
-- Diya Chataut  
-- Abhie Koirala  
-- Ashish Pudasaini  
-
-##  Problem Statement  
-Traditional textbooks often use static images to teach complex biological structures, which can fail to engage students. PlantAR solves this by offering a **3D interactive AR experience**, making learning more **memorable, intuitive, and effective**.  
-
-##  Current Status  
-- **Sprint 0**: Completed (requirements gathered, project environment setup, repo initialized).  
-- **Sprint 1**: Starting (focus: basic image tracking and initial 3D model rendering).
-  
-##  System Requirements  
-- **Mobile Device**: iOS (ARKit 4.0+, iPhone 8+) or Android (ARCore 1.0+ supported devices).  
-- **Development Platform**: Unity 2021.3 LTS or later.  
-- **AR Framework**: AR Foundation, ARKit, ARCore.  
-- **Assets**: 3D plant models and target images for tracking.  
+### University of North Texas — CSCE 4901 Capstone Project  
+**Team:** Yogesh Ayer, Yam Karki, Diya Chataut, Abhie Koirala, Ashish Pudasaini  
+**Sponsor:** Dr. Stephanie Ludi  
+**Semester:** Fall 2025  
 
 ---
 
-##  Features (MVP)  
-- **F1**: Image Tracking (recognize physical target image).  
-- **F2**: 3D Model Rendering (plant model locked to target).  
-- **F3**: Model Manipulation (rotate/zoom).  
-- **F4**: Interactive Parts (tap on plant parts).  
-- **F5**: Information Display (popup with names & functions).  
+## Overview
 
-Future features include multiple plant models (F8) and teacher preview mode (F9).  
+PlantAR is an Augmented Reality (AR) mobile application designed to help elementary and middle school students (ages 8–14) explore plant biology in an engaging, hands-on way.  
+By pointing their mobile device at a printed target image, students can view and interact with a 3D model of a plant — rotating, zooming, and tapping on individual parts (roots, stem, leaves, flowers) to reveal their names and functions.
 
-##  Setup Instructions  
+This project combines Unity (AR Foundation) for AR functionality and React Native (Expo) for the front-end interface. The team follows an agile process to deliver incremental, testable features each sprint.
+
+---
+
+## Problem Statement
+
+Traditional textbooks rely on static 2D images to explain plant structures, which often fail to engage students or foster retention.  
+PlantAR transforms this experience by offering an interactive 3D AR environment, improving understanding, motivation, and long-term learning outcomes.
+
+---
+
+## Current Status
+
+| Sprint | Focus | Key Deliverables |
+|--------|--------|------------------|
+| Sprint 0 | Planning and Setup | Requirements, architecture, GitHub repository, Trello board |
+| Sprint 1 | AR Foundations | Image tracking, 3D model rendering, UI wireframes |
+| Sprint 2 | Interactivity and Usability | Tap interactions, info panels, floating labels |
+| Sprint 3 (Planned) | Web Viewer | Quiz mode, multi-plant support, teacher preview mode,tutorial |
+
+---
+
+## System Requirements
+
+- **Mobile Platforms:**  
+  - iOS (ARKit 4.0+, iPhone 8 or newer)  
+  - Android (ARCore 1.0+ supported devices)  
+- **Development Platform:** Unity 2021.3 LTS or later  
+- **AR Framework:** AR Foundation, ARKit, ARCore  
+- **3D Assets:** Educational plant models (Sunflower as MVP)  
+- **Web Component:** React + Next.js + Three.js for browser preview  
+
+---
+
+## Core Features (MVP)
+
+| ID | Feature | Description |
+|----|----------|-------------|
+| F1 | Image Tracking | Recognize printed target image using AR camera |
+| F2 | 3D Model Rendering | Render and anchor a 3D plant model on tracked target |
+| F3 | Model Manipulation | Rotate and zoom model via touch gestures |
+| F4 | Interactive Parts | Tap on roots, stem, leaves, or flower |
+| F5 | Information Display | Pop-up panel showing name and function of plant part |
+
+**Planned Enhancements:**  
+Multi-plant selection (F8), teacher preview mode (F9), quiz system, offline caching, and audio narration.
+
+---
+
+## Architecture Overview
+
+**Core Modules**
+- **AR Module:** Manages image tracking and spawning of plant models  
+- **Data Module:** Stores plant and part data using ScriptableObjects  
+- **UI Module:** Displays labels and information panels  
+- **Core Services:** Managed through a lightweight Service Locator pattern  
+
+**Design Patterns**
+- Service Locator  
+- Observer Pattern  
+- Singleton  
+- Dependency Injection  
+
+**Technology Stack**
+- Unity 2021.3 LTS (C#)  
+- AR Foundation / ARKit  
+- Firebase Firestore (for data storage)  
+- React Native (Expo)  
+- Three.js (Web 3D Viewer)  
+
+---
+
+## Test Plan Summary
+
+**Objectives**
+- Validate AR tracking accuracy, 3D rendering, and interactive behavior.  
+- Verify usability and accessibility for children ages 8–14.  
+- Ensure consistent performance (≥ 30 FPS, < 3 s model load time).  
+
+**Test Types**
+- Unit and Integration Testing (Unity Test Framework / Jest)  
+- Manual Device Testing (iOS)  
+- Usability Testing (target users)  
+- Regression and Performance Testing (Sprint 3)  
+
+**Environment**
+- Unity 2021.3 LTS  
+- iPhone 8 / iPhone 12 Pro test devices  
+- Firebase Emulator Suite for local testing  
+
+---
+
+## Repository Structure
+PlantAR/
+├── Assets/
+│ ├── Art/Models, Textures, Materials, UI
+│ ├── Content/Plants/Sunflower/
+│ ├── Prefabs/AR, UI
+│ ├── Scenes/Boot, Home, ARScene
+│ └── Scripts/
+│ ├── AR/TrackedImageSpawner.cs
+│ ├── Core/ServiceLocator.cs, ContentProvider.cs
+│ ├── Data/PlantData.cs, PartData.cs
+│ ├── UI/InfoPanelController.cs, LabelView.cs
+│ └── Quiz/
+├── plantar-ui-main/ # React Native (Expo) app
+├── docs/ # Design docs, requirements, and test plans
+└── README.md
+
+---
+
+## Setup Instructions (Unity + AR)
+
 1. Install **Unity 2021.3 LTS** (or later).  
-2. Add **AR Foundation**, **ARKit XR Plugin**, and **ARCore XR Plugin** via Unity Package Manager.  
+2. Add required packages via **Package Manager**:  
+   - AR Foundation  
+   - ARKit XR Plugin  
+   - ARCore XR Plugin (optional for Android)  
 3. Clone the repository:  
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/<your-username>/PlantAR.git
    cd PlantAR
-
-## How to Run and Test the App Using Expo Go  
-
-> 💡 *This guide is for running the PlantAR React Native (UI) portion using Expo Go for fast mobile testing.*
-
-### Install Requirements  
-Make sure you have:  
-- **Node.js** (version 18 or 20 recommended)  
-- **npm** (comes with Node.js)  
-- **Expo CLI tools** (no global install needed — runs via `npx`)  
-
-### Open the Project Folder  
-Open a terminal or command prompt in the project’s root directory:  
-```bash
+Open the project in Unity and switch platform to iOS.
+Build and deploy to device using Xcode.
+Running the React Native (Expo) UI
 cd plantar-ui-main
-```
-
-### Install Dependencies  
-Install all required project packages:  
-```bash
 npm install
-```
-
-### Start the Expo Development Server  
-Launch the project using a **tunnel** (works anywhere, even across networks):  
-```bash
 npx expo start --tunnel -c
-```
-This starts the **Metro bundler**. The terminal will display a **QR code** and may also open the **Expo Dev Tools** in your browser.  
+To Test:
+Download Expo Go from the App Store.
+Scan the QR code displayed in the terminal.
+The PlantAR UI will load instantly on your device.
 
-### Open the App on Your Phone  
-1. Download **Expo Go** from the App Store or Google Play.  
-2. Scan the QR code displayed in the terminal:  
-   - **Android:** Open Expo Go → tap **“Scan QR Code”**.  
-   - **iOS:** Open your **Camera app** → tap the Expo link when prompted.  
-3. The app will automatically load and run on your phone within Expo Go.  
+Trello Board : https://trello.com/b/FZhfAA0v/ar-science-tool
 
 
 
-### 💡 Tips  
-- Press **r** in the terminal to reload the app.  
-- Press **c** to toggle the QR code view.  
-- Press **Ctrl + C** to stop the development server.  
-
-## Trello Link
-https://trello.com/c/MJc6xDBm/16-readme-file
