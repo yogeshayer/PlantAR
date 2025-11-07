@@ -104,25 +104,6 @@ Multi-plant selection (F8), teacher preview mode (F9), quiz system, offline cach
 
 ---
 
-## Repository Structure
-PlantAR/
-├── Assets/
-│ ├── Art/Models, Textures, Materials, UI
-│ ├── Content/Plants/Sunflower/
-│ ├── Prefabs/AR, UI
-│ ├── Scenes/Boot, Home, ARScene
-│ └── Scripts/
-│ ├── AR/TrackedImageSpawner.cs
-│ ├── Core/ServiceLocator.cs, ContentProvider.cs
-│ ├── Data/PlantData.cs, PartData.cs
-│ ├── UI/InfoPanelController.cs, LabelView.cs
-│ └── Quiz/
-├── plantar-ui-main/ # React Native (Expo) app
-├── docs/ # Design docs, requirements, and test plans
-└── README.md
-
----
-
 ## Setup Instructions (Unity + AR)
 
 1. Install **Unity 2021.3 LTS** (or later).  
