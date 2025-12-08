@@ -18,31 +18,47 @@ This project combines Unity (AR Foundation) for AR functionality and React Nativ
 
 ## Problem Statement
 
-Traditional textbooks rely on static 2D images to explain plant structures, which often fail to engage students or foster retention.  
-PlantAR transforms this experience by offering an interactive 3D AR environment, improving understanding, motivation, and long-term learning outcomes.
-
----
+Traditional science education relies on static 2D textbook images to explain complex plant structures, which often fails to engage students or foster retention. PlantAR transforms this experience by offering interactive 3D AR environments that improve understanding, motivation, and long-term learning outcomes through immersive exploration and assessment.
 
 ## Current Status
+Sprint	Focus	Key Deliverables	Status
+Sprint 0	Planning and Setup	Requirements, architecture, GitHub repositories, Trello board	✅ Completed
+Sprint 1	AR Foundations	Image tracking, 3D model rendering, UI wireframes	✅ Completed
+Sprint 2	Interactivity and Usability	Tap interactions, info panels, floating labels	✅ Completed
+Sprint 3	Platform Migration & Assessment	Dual-platform architecture, quiz system, progress tracking, web deployment	✅ Completed
+Sprint 3 Key Outcomes:
 
-| Sprint | Focus | Key Deliverables |
-|--------|--------|------------------|
-| Sprint 0 | Planning and Setup | Requirements, architecture, GitHub repository, Trello board |
-| Sprint 1 | AR Foundations | Image tracking, 3D model rendering, UI wireframes |
-| Sprint 2 | Interactivity and Usability | Tap interactions, info panels, floating labels |
-| Sprint 3 (Planned) | Web Viewer | Quiz mode, multi-plant support, teacher preview mode,tutorial |
+Successfully migrated from Unity to native iOS (Swift/ARKit) and web (WebXR/Three.js)
+
+Implemented comprehensive assessment system with quizzes and progress tracking
+
+Established Blender 3D pipeline with USDZ/GLTF dual-format export
+
+Deployed production-ready applications on both platforms
+
+Achieved WCAG 2.0 AA accessibility compliance
 
 ---
 
 ## System Requirements
 
-- **Mobile Platforms:**  
-  - iOS (ARKit 4.0+, iPhone 8 or newer)  
-  - Android (ARCore 1.0+ supported devices)  
-- **Development Platform:** Unity 2021.3 LTS or later  
-- **AR Framework:** AR Foundation, ARKit, ARCore  
-- **3D Assets:** Educational plant models (Sunflower as MVP)  
-- **Web Component:** React + Next.js + Three.js for browser preview  
+Dual-Platform Architecture:
+Native iOS Application:
+
+Devices: iPhone or iPad with iOS 14+ and ARKit compatibility
+Development: Xcode 15+, Swift 5.9+
+AR Framework: ARKit 6.0+, SceneKit
+Deployment: TestFlight for testing, App Store for distribution
+
+Web Application:
+Browsers: Safari 15+, Chrome 90+, or other WebXR-compatible browsers
+Development: React 18+, Three.js r152+, WebXR API
+Deployment: HTTPS-enabled hosting with PWA support
+
+3D Model Pipeline:
+Software: Blender 3.6+
+Export Formats: USDZ (iOS), GLTF/GLB (web)
+Textures: PBR materials optimized for both platforms
 
 ---
 
@@ -56,31 +72,52 @@ PlantAR transforms this experience by offering an interactive 3D AR environment,
 | F4 | Interactive Parts | Tap on roots, stem, leaves, or flower |
 | F5 | Information Display | Pop-up panel showing name and function of plant part |
 
-**Planned Enhancements:**  
-Multi-plant selection (F8), teacher preview mode (F9), quiz system, offline caching, and audio narration.
+## Sprint 3 Enhancement Features:
+ID	Feature	Description
+F6	Quiz Assessment System	Interactive quizzes with immediate feedback
+F7	Progress Tracking	User progress visualization and achievement system
+F8	Multi-Plant Library	Browse and select from plant collection
+F9	Cross-Platform Sync	Firebase-powered synchronization between iOS and web
+F10	Web AR Accessibility	Markerless AR experience via browser
 
 ---
 
 ## Architecture Overview
 
-**Core Modules**
-- **AR Module:** Manages image tracking and spawning of plant models  
-- **Data Module:** Stores plant and part data using ScriptableObjects  
-- **UI Module:** Displays labels and information panels  
-- **Core Services:** Managed through a lightweight Service Locator pattern  
+Dual-Platform Architecture:
+Native iOS Stack:
+Language: Swift 5.9
+AR Framework: ARKit 6.0, SceneKit
+UI Framework: SwiftUI
+Architecture: MVVM (Model-View-ViewModel)
+Data Persistence: Core Data + Firebase Firestore
 
-**Design Patterns**
-- Service Locator  
-- Observer Pattern  
-- Singleton  
-- Dependency Injection  
+Web Application Stack:
+Frontend: React 18, TypeScript
+3D Graphics: Three.js r152+, WebXR API
+Build Tool: Vite
+PWA Features: Service Workers, Web App Manifest
+Styling: CSS Modules, Tailwind CSS
 
-**Technology Stack**
-- Unity 2021.3 LTS (C#)  
-- AR Foundation / ARKit  
-- Firebase Firestore (for data storage)  
-- React Native (Expo)  
-- Three.js (Web 3D Viewer)  
+Backend & Shared Services:
+Database: Firebase Firestore
+Authentication: Firebase Auth
+Storage: Firebase Storage (3D models)
+Analytics: Firebase Analytics
+Hosting: Firebase Hosting (web app)
+
+3D Development Pipeline:
+Modeling: Blender 3.6+
+iOS Export: USDZ format with AR Quick Look compatibility
+Web Export: GLTF/GLB format with Draco compression
+Texture Format: PBR materials (Albedo, Normal, Roughness/Metallic)
+
+Design Patterns:
+Service Locator Pattern (iOS)
+Observer Pattern (Cross-platform events)
+MVVM Architecture (iOS)
+Component-Based Architecture (Web)
+Repository Pattern (Data access)
 
 ---
 
@@ -89,18 +126,21 @@ Multi-plant selection (F8), teacher preview mode (F9), quiz system, offline cach
 **Objectives**
 - Validate AR tracking accuracy, 3D rendering, and interactive behavior.  
 - Verify usability and accessibility for children ages 8–14.  
-- Ensure consistent performance (≥ 30 FPS, < 3 s model load time).  
+- Ensure consistent performance (≥ 30 FPS, < 3 s model load time).
+- Confirm cross-platform data synchronization reliability
+- Validate accessibility compliance (WCAG 2.0 AA)  
 
-**Test Types**
-- Unit and Integration Testing (Unity Test Framework / Jest)  
-- Manual Device Testing (iOS)  
-- Usability Testing (target users)  
-- Regression and Performance Testing (Sprint 3)  
+**Testing Strategy**
+- UiOS Testing: XCTest (unit/UI), XCUITest, ARKit session testing
+- Web Testing: Jest (unit), Cypress (E2E), Cross-browser compatibility
+- Integration Testing: Firebase services, 3D model pipeline
+- User Acceptance Testing: Classroom testing with target age group
+- Performance Testing: FPS monitoring, load time validation, memory profiling
 
 **Environment**
-- Unity 2021.3 LTS  
-- iPhone 8 / iPhone 12 Pro test devices  
-- Firebase Emulator Suite for local testing  
+- iOS: Xcode 15+, iPhone 8 or later (iOS 14+), TestFlight
+- Web: Node.js 18+, Safari 15+, Chrome 90+, Firebase Emulator Suite
+- 3D Pipeline: Blender 3.6+, glTF Validator, USDZ Tools
 
 ---
 
