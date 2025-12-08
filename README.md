@@ -22,10 +22,10 @@ Traditional science education relies on static 2D textbook images to explain com
 
 ## Current Status
 Sprint	Focus	Key Deliverables	Status
-Sprint 0	Planning and Setup	Requirements, architecture, GitHub repositories, Trello board	✅ Completed
-Sprint 1	AR Foundations	Image tracking, 3D model rendering, UI wireframes	✅ Completed
-Sprint 2	Interactivity and Usability	Tap interactions, info panels, floating labels	✅ Completed
-Sprint 3	Platform Migration & Assessment	Dual-platform architecture, quiz system, progress tracking, web deployment	✅ Completed
+Sprint 0	Planning and Setup	Requirements, architecture, GitHub repositories, Trello board	 Completed
+Sprint 1	AR Foundations	Image tracking, 3D model rendering, UI wireframes	Completed
+Sprint 2	Interactivity and Usability	Tap interactions, info panels, floating labels	 Completed
+Sprint 3	Platform Migration & Assessment	Dual-platform architecture, quiz system, progress tracking, web deployment	 Completed
 Sprint 3 Key Outcomes:
 
 Successfully migrated from Unity to native iOS (Swift/ARKit) and web (WebXR/Three.js)
