@@ -1,0 +1,257 @@
+Plant Education App Backend Seeder 
+import Foundation
+
+// MARK: - Configure your API base URL here
+enum Endpoints {
+    static let baseURL = URL(string: "https://YOUR_API_DOMAIN_HERE.com")!
+
+    static var plants: URL { baseURL.appendingPathComponent("/plants") }
+    static var plantPartsBulk: URL { baseURL.appendingPathComponent("/plant-parts/bulk") }
+    static var quizQuestionsBulk: URL { baseURL.appendingPathComponent("/quiz-questions/bulk") }
+}
+
+// MARK: - Models (Request/Response)
+
+// Create Plant request body
+struct PlantCreateRequest: Codable {
+    let name: String
+    let scientific_name: String
+    let description: String
+    let fun_facts: [String]
+    let image_url: String
+    let color: String
+}
+
+// Plant response (must include id returned by API)
+struct Plant: Codable {
+    let id: String
+    let name: String
+    let scientific_name: String?
+    let description: String?
+    let fun_facts: [String]?
+    let image_url: String?
+    let color: String?
+}
+
+// PlantPart bulk item
+struct PlantPartCreateRequest: Codable {
+    let plant_id: String
+    let part_name: String
+    let description: String
+    let fun_fact: String
+    let function: String
+}
+
+// QuizQuestion bulk item
+struct QuizQuestionCreateRequest: Codable {
+    let plant_id: String?          // optional because your JS code had some without plant_id
+    let question: String
+    let options: [String]
+    let correct_answer: String
+    let difficulty: String
+    let created_by_teacher: Bool
+}
+
+// MARK: - Simple HTTP Client (no base44)
+
+final class APIClient {
+    private let session: URLSession
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+
+    func postJSON<T: Codable, R: Codable>(url: URL, body: T) async throws -> R {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try encoder.encode(body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard (200...299).contains(http.statusCode) else {
+            let serverText = String(data: data, encoding: .utf8) ?? "<no body>"
+            throw NSError(domain: "APIError", code: http.statusCode, userInfo: [
+                NSLocalizedDescriptionKey: "HTTP \(http.statusCode): \(serverText)"
+            ])
+        }
+
+        return try decoder.decode(R.self, from: data)
+    }
+
+    func postJSONNoResponse<T: Codable>(url: URL, body: T) async throws {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try encoder.encode(body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard (200...299).contains(http.statusCode) else {
+            let serverText = String(data: data, encoding: .utf8) ?? "<no body>"
+            throw NSError(domain: "APIError", code: http.statusCode, userInfo: [
+                NSLocalizedDescriptionKey: "HTTP \(http.statusCode): \(serverText)"
+            ])
+        }
+    }
+}
+
+// MARK: - Seed logic
+
+@main
+struct SeedDatabaseApp {
+    static func main() async {
+        print("🌱 Starting database seed...")
+
+        let api = APIClient()
+
+        do {
+            // 1) Create Plants
+            let sunflowerReq = PlantCreateRequest(
+                name: "Sunflower",
+                scientific_name: "Helianthus annuus",
+                description: "A tall plant with large yellow flowers that follows the sun.",
+                fun_facts: [
+                    "Sunflowers can grow up to 12 feet tall!",
+                    "They always face the sun during the day.",
+                    "A single sunflower can contain up to 2000 seeds."
+                ],
+                image_url: "https://images.unsplash.com/photo-1597848212624-e530bb09e59f?w=400",
+                color: "#FFD700"
+            )
+
+            let roseReq = PlantCreateRequest(
+                name: "Rose",
+                scientific_name: "Rosa",
+                description: "A woody perennial flowering plant known for its beautiful petals and thorns.",
+                fun_facts: [
+                    "Roses have been grown for over 5000 years!",
+                    "There are over 100 species of roses.",
+                    "Rose oil is one of the most expensive essential oils."
+                ],
+                image_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400",
+                color: "#FF1744"
+            )
+
+            let cactusReq = PlantCreateRequest(
+                name: "Cactus",
+                scientific_name: "Cactaceae",
+                description: "A succulent plant adapted to survive in arid environments with minimal water.",
+                fun_facts: [
+                    "Cacti can live for over 200 years!",
+                    "They store water in their thick stems.",
+                    "Some cacti only bloom once a year at night."
+                ],
+                image_url: "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400",
+                color: "#4CAF50"
+            )
+
+            let sunflower: Plant = try await api.postJSON(url: Endpoints.plants, body: sunflowerReq)
+            let rose: Plant = try await api.postJSON(url: Endpoints.plants, body: roseReq)
+            let cactus: Plant = try await api.postJSON(url: Endpoints.plants, body: cactusReq)
+
+            print("✅ Plants created")
+
+            // 2) Create Plant Parts for Sunflower (bulk)
+            let parts: [PlantPartCreateRequest] = [
+                .init(
+                    plant_id: sunflower.id,
+                    part_name: "Roots",
+                    description: "The roots anchor the plant and absorb water and nutrients from the soil.",
+                    fun_fact: "Sunflower roots can grow up to 6 feet deep!",
+                    function: "Absorbs water and nutrients, provides stability"
+                ),
+                .init(
+                    plant_id: sunflower.id,
+                    part_name: "Stem",
+                    description: "The strong stem supports the heavy flower head and transports nutrients.",
+                    fun_fact: "The stem can be as thick as a broomstick!",
+                    function: "Transports water and nutrients, provides structural support"
+                ),
+                .init(
+                    plant_id: sunflower.id,
+                    part_name: "Leaves",
+                    description: "Large green leaves that produce food through photosynthesis.",
+                    fun_fact: "Sunflower leaves can be as large as dinner plates!",
+                    function: "Produces food through photosynthesis"
+                ),
+                .init(
+                    plant_id: sunflower.id,
+                    part_name: "Flowers",
+                    description: "The iconic yellow flower head that contains thousands of tiny flowers.",
+                    fun_fact: "What looks like one flower is actually hundreds of tiny flowers!",
+                    function: "Reproduction and seed production"
+                ),
+                .init(
+                    plant_id: sunflower.id,
+                    part_name: "Seeds",
+                    description: "Nutritious seeds packed with oil, found in the center of the flower.",
+                    fun_fact: "Sunflower seeds are a healthy snack full of vitamins!",
+                    function: "Plant reproduction and food source"
+                )
+            ]
+
+            try await api.postJSONNoResponse(url: Endpoints.plantPartsBulk, body: parts)
+            print("✅ Plant parts created")
+
+            // 3) Create Quiz Questions (bulk)
+            let questions: [QuizQuestionCreateRequest] = [
+                .init(
+                    plant_id: sunflower.id,
+                    question: "What part of the plant absorbs water from the soil?",
+                    options: ["Roots", "Leaves", "Flowers", "Seeds"],
+                    correct_answer: "Roots",
+                    difficulty: "easy",
+                    created_by_teacher: true
+                ),
+                .init(
+                    plant_id: nil,
+                    question: "What process do leaves use to make food for the plant?",
+                    options: ["Respiration", "Photosynthesis", "Digestion", "Fermentation"],
+                    correct_answer: "Photosynthesis",
+                    difficulty: "medium",
+                    created_by_teacher: true
+                ),
+                .init(
+                    plant_id: rose.id,
+                    question: "Which plant is known for having thorns?",
+                    options: ["Sunflower", "Rose", "Cactus", "Daisy"],
+                    correct_answer: "Rose",
+                    difficulty: "easy",
+                    created_by_teacher: true
+                ),
+                .init(
+                    plant_id: nil,
+                    question: "What is the main function of a flower?",
+                    options: ["Make food", "Store water", "Reproduction", "Absorb nutrients"],
+                    correct_answer: "Reproduction",
+                    difficulty: "medium",
+                    created_by_teacher: true
+                ),
+                .init(
+                    plant_id: cactus.id,
+                    question: "How do cacti survive in the desert?",
+                    options: ["Deep roots only", "Store water in stems", "Thick bark", "Large leaves"],
+                    correct_answer: "Store water in stems",
+                    difficulty: "hard",
+                    created_by_teacher: true
+                )
+            ]
+
+            try await api.postJSONNoResponse(url: Endpoints.quizQuestionsBulk, body: questions)
+            print("✅ Quiz questions created")
+            print("🎉 Database seeded successfully!")
+
+        } catch {
+            print("❌ Seeding failed:", error.localizedDescription)
+        }
+    }
+}
