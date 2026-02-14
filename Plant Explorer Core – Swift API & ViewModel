@@ -1,0 +1,210 @@
+Plant Explorer Core – Swift API & ViewModel
+import SwiftUI
+
+struct PlantExplorerView: View {
+    let plantId: String
+    @StateObject private var vm = PlantExplorerViewModel()
+    private let speech = SpeechHelper()
+
+    var body: some View {
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+
+            if vm.isLoading {
+                ProgressView("Loading...")
+            } else if let error = vm.errorMessage {
+                VStack(spacing: 12) {
+                    Text("Something went wrong").font(.headline)
+                    Text(error).font(.subheadline).foregroundColor(.secondary)
+                    Button("Retry") {
+                        Task { await vm.load(plantId: plantId) }
+                    }
+                }
+                .padding()
+            } else if let plant = vm.plant {
+                ScrollView {
+                    VStack(spacing: 16) {
+
+                        // Header
+                        HStack {
+                            Button {
+                                // Replace with NavigationStack dismiss/pop
+                            } label: {
+                                Label("Back", systemImage: "chevron.left")
+                            }
+
+                            Spacer()
+
+                            Button {
+                                vm.reset()
+                            } label: {
+                                Label("Reset", systemImage: "arrow.counterclockwise")
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // 3D Viewer placeholder (replace later with RealityKit/SceneKit/Unity view)
+                        PlantViewer3DPlaceholder(
+                            plantName: plant.name,
+                            resetToken: vm.resetToken,
+                            onPartTap: { tapped in
+                                vm.selectPart(named: tapped)
+                            }
+                        )
+                        .frame(height: 280)
+                        .padding(.horizontal)
+
+                        Text("Tap on plant parts to learn more")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+
+                        // About
+                        CardView(title: "About") {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(plant.description)
+
+                                if let sci = plant.scientific_name, !sci.isEmpty {
+                                    Text(sci)
+                                        .font(.subheadline)
+                                        .italic()
+                                        .foregroundColor(.secondary)
+                                }
+
+                                if let facts = plant.fun_facts, !facts.isEmpty {
+                                    Text("Fun Facts:")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .padding(.top, 6)
+
+                                    ForEach(facts.indices, id: \.self) { i in
+                                        Text("• \(facts[i])")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Selected part info
+                        if let part = vm.selectedPart {
+                            CardView(title: part.part_name) {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text(part.description)
+
+                                    if let fun = part.fun_fact, !fun.isEmpty {
+                                        Text("Fun Fact: \(fun)")
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    if let fn = part.function, !fn.isEmpty {
+                                        Text("Function: \(fn)")
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    HStack {
+                                        Button {
+                                            speech.speak(part.description)
+                                        } label: {
+                                            Label("Speak", systemImage: "speaker.wave.2.fill")
+                                        }
+
+                                        Spacer()
+
+                                        Button(role: .destructive) {
+                                            vm.selectedPart = nil
+                                        } label: {
+                                            Text("Close")
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        // Parts list
+                        CardView(title: "Plant Parts") {
+                            if vm.parts.isEmpty {
+                                Text("No parts added yet")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                VStack(spacing: 8) {
+                                    ForEach(vm.parts) { part in
+                                        Button {
+                                            vm.selectedPart = part
+                                        } label: {
+                                            HStack {
+                                                Text(part.part_name)
+                                                Spacer()
+                                                Image(systemName: "chevron.right")
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .padding()
+                                            .background(Color(.secondarySystemBackground))
+                                            .cornerRadius(10)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .padding(.vertical)
+                }
+            } else {
+                Text("No plant selected")
+            }
+        }
+        .task {
+            await vm.load(plantId: plantId)
+        }
+    }
+}
+
+// MARK: - Reusable UI
+
+struct CardView<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.headline)
+            content
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(14)
+    }
+}
+
+// MARK: - 3D Placeholder
+
+struct PlantViewer3DPlaceholder: View {
+    let plantName: String
+    let resetToken: UUID
+    let onPartTap: (String) -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("3D Viewer (placeholder)").font(.headline)
+            Text("Plant: \(plantName)").foregroundColor(.secondary)
+
+            HStack {
+                Button("Roots") { onPartTap("Roots") }
+                Button("Stem") { onPartTap("Stem") }
+                Button("Leaves") { onPartTap("Leaves") }
+            }
+            .buttonStyle(.bordered)
+
+            Text("Reset: \(resetToken.uuidString.prefix(6))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(14)
+    }
+}
