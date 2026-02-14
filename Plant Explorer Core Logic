@@ -1,0 +1,116 @@
+Plant Explorer Core Logic 
+import Foundation
+import AVFoundation
+import SwiftUI
+
+// MARK: - Models
+
+struct Plant: Codable, Identifiable {
+    let id: String
+    let name: String
+    let scientific_name: String?
+    let description: String
+    let fun_facts: [String]?
+    let image_url: String?
+    let color: String?
+}
+
+struct PlantPart: Codable, Identifiable {
+    let id: String
+    let plant_id: String
+    let part_name: String
+    let description: String
+    let fun_fact: String?
+    let function: String?
+}
+
+// MARK: - API Client (no base44)
+
+final class PlantAPI {
+    // Change this to your real backend URL
+    private let baseURL = URL(string: "https://YOUR_API_DOMAIN_HERE.com")!
+    private let session: URLSession = .shared
+    private let decoder = JSONDecoder()
+
+    func fetchPlant(id: String) async throws -> Plant {
+        let url = baseURL.appendingPathComponent("/plants/\(id)")
+        let (data, response) = try await session.data(from: url)
+        try validate(response: response, data: data)
+        return try decoder.decode(Plant.self, from: data)
+    }
+
+    func fetchPlantParts(plantId: String) async throws -> [PlantPart] {
+        let url = baseURL.appendingPathComponent("/plants/\(plantId)/parts")
+        let (data, response) = try await session.data(from: url)
+        try validate(response: response, data: data)
+        return try decoder.decode([PlantPart].self, from: data)
+    }
+
+    private func validate(response: URLResponse, data: Data) throws {
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard (200...299).contains(http.statusCode) else {
+            let msg = String(data: data, encoding: .utf8) ?? "Unknown server error"
+            throw NSError(domain: "APIError", code: http.statusCode, userInfo: [
+                NSLocalizedDescriptionKey: "HTTP \(http.statusCode): \(msg)"
+            ])
+        }
+    }
+}
+
+// MARK: - ViewModel
+
+@MainActor
+final class PlantExplorerViewModel: ObservableObject {
+    @Published var plant: Plant?
+    @Published var parts: [PlantPart] = []
+    @Published var selectedPart: PlantPart?
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+
+    // Like resetKey in React
+    @Published var resetToken = UUID()
+
+    private let api = PlantAPI()
+
+    func load(plantId: String) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            async let plantReq = api.fetchPlant(id: plantId)
+            async let partsReq = api.fetchPlantParts(plantId: plantId)
+
+            let (p, ps) = try await (plantReq, partsReq)
+            plant = p
+            parts = ps
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
+    }
+
+    func reset() {
+        selectedPart = nil
+        resetToken = UUID()
+    }
+
+    func selectPart(named name: String) {
+        selectedPart = parts.first { $0.part_name == name }
+    }
+}
+
+// MARK: - Text To Speech
+
+final class SpeechHelper {
+    private let synthesizer = AVSpeechSynthesizer()
+
+    func speak(_ text: String) {
+        synthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.rate = 0.45
+        synthesizer.speak(utterance)
+    }
+}
