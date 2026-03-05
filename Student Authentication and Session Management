@@ -1,0 +1,55 @@
+Student Authentication and Session Management
+import Foundation
+import Combine
+
+class AuthService: ObservableObject {
+
+    @Published var isAuthenticated: Bool = false
+    @Published var currentStudentID: String? = nil
+    @Published var currentStudentName: String? = nil
+    @Published var classCode: String = ""
+
+    init() {
+        if let savedID = UserDefaults.standard.string(forKey: "studentID") {
+            self.currentStudentID = savedID
+            self.currentStudentName = UserDefaults.standard.string(forKey: "studentName")
+            self.classCode = UserDefaults.standard.string(forKey: "classCode") ?? ""
+            self.isAuthenticated = true
+        }
+    }
+
+    func login(email: String, name: String, classCode: String) async throws {
+
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+
+        await MainActor.run {
+
+            let normalizedEmail = email.lowercased()
+                .trimmingCharacters(in: .whitespaces)
+
+            let formattedCode = classCode.uppercased()
+                .trimmingCharacters(in: .whitespaces)
+
+            self.currentStudentID = normalizedEmail
+            self.currentStudentName = name
+            self.classCode = formattedCode
+            self.isAuthenticated = true
+
+            UserDefaults.standard.set(normalizedEmail, forKey: "studentID")
+            UserDefaults.standard.set(name, forKey: "studentName")
+            UserDefaults.standard.set(formattedCode, forKey: "classCode")
+        }
+    }
+
+    func logout() {
+
+        isAuthenticated = false
+        currentStudentID = nil
+        currentStudentName = nil
+        classCode = ""
+
+        UserDefaults.standard.removeObject(forKey: "studentID")
+        UserDefaults.standard.removeObject(forKey: "studentName")
+        UserDefaults.standard.removeObject(forKey: "classCode")
+    }
+}
