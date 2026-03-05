@@ -1,0 +1,96 @@
+User Login Interface for Student Access
+import SwiftUI
+
+struct LoginView: View {
+
+    @EnvironmentObject var auth: AuthService
+    @Environment(\.dismiss) var dismiss
+
+    @State private var isNewStudent = true
+    @State private var name = ""
+    @State private var email = ""
+    @State private var classCode = ""
+    @State private var password = ""
+    @State private var isLoading = false
+    @State private var errorMessage = ""
+
+    var isFormValid: Bool {
+        let nameOK = isNewStudent ? !name.trimmingCharacters(in: .whitespaces).isEmpty : true
+        let codeOK = isNewStudent ? classCode.count == 6 : true
+        return nameOK && email.contains("@") && codeOK && password.count >= 6
+    }
+
+    var body: some View {
+
+        ScrollView {
+
+            VStack(spacing: 32) {
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Welcome")
+                        .font(.largeTitle)
+
+                    Text("Sign in to start exploring plants in augmented reality.")
+                        .foregroundColor(.gray)
+                }
+
+                Picker("", selection: $isNewStudent) {
+                    Text("New Student").tag(true)
+                    Text("Returning Student").tag(false)
+                }
+                .pickerStyle(.segmented)
+
+                VStack(spacing: 20) {
+
+                    if isNewStudent {
+                        TextField("Your Name", text: $name)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    TextField("Email", text: $email)
+                        .textFieldStyle(.roundedBorder)
+
+                    if isNewStudent {
+                        TextField("Class Code", text: $classCode)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                Button(action: handleLogin) {
+
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Text("Start Exploring")
+                    }
+                }
+                .disabled(!isFormValid)
+            }
+            .padding()
+        }
+    }
+
+    private func handleLogin() {
+
+        errorMessage = ""
+        isLoading = true
+
+        Task {
+
+            do {
+                try await auth.login(
+                    email: email,
+                    name: name,
+                    classCode: classCode
+                )
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+
+            isLoading = false
+        }
+    }
+}
