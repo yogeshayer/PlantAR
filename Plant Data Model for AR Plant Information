@@ -1,0 +1,38 @@
+import Foundation
+
+struct Plant: Identifiable, Codable {
+
+    // Unique identifier for each plant
+    let id: UUID
+
+    // Common plant name
+    let name: String
+
+    // Scientific plant name
+    let scientificName: String
+
+    // Short description of the plant
+    let description: String
+
+    // 3D model file name used in AR
+    let modelName: String
+
+    // Plant educational facts
+    let funFacts: [String]
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        scientificName: String,
+        description: String,
+        modelName: String,
+        funFacts: [String]
+    ) {
+        self.id = id
+        self.name = name
+        self.scientificName = scientificName
+        self.description = description
+        self.modelName = modelName
+        self.funFacts = funFacts
+    }
+}
