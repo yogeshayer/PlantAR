@@ -1,0 +1,92 @@
+import SwiftUI
+import RealityKit
+import ARKit
+
+struct PlantARView: UIViewRepresentable {
+    @Binding var selectedPart: PlantPart?
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> ARView {
+        let arView = ARView(frame: .zero)
+
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = [.horizontal]
+        arView.session.run(configuration)
+
+        let anchor = AnchorEntity(plane: .horizontal)
+
+        let plantBody = ModelEntity(
+            mesh: .generateBox(size: [0.12, 0.25, 0.12]),
+            materials: [SimpleMaterial(color: .green, isMetallic: false)]
+        )
+        plantBody.position = [0, 0.125, 0]
+
+        let roots = makePartSphere(name: "roots", color: .brown, position: [0, 0.02, 0])
+        let stem = makePartSphere(name: "stem", color: .systemGreen, position: [0, 0.12, 0])
+        let leaves = makePartSphere(name: "leaves", color: .green, position: [0.06, 0.18, 0])
+        let flower = makePartSphere(name: "flower", color: .systemPink, position: [0, 0.28, 0])
+
+        anchor.addChild(plantBody)
+        anchor.addChild(roots)
+        anchor.addChild(stem)
+        anchor.addChild(leaves)
+        anchor.addChild(flower)
+
+        arView.scene.addAnchor(anchor)
+
+        let tapGesture = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleTap(_:))
+        )
+        arView.addGestureRecognizer(tapGesture)
+        context.coordinator.arView = arView
+
+        return arView
+    }
+
+    func updateUIView(_ uiView: ARView, context: Context) {}
+
+    private func makePartSphere(name: String, color: UIColor, position: SIMD3<Float>) -> ModelEntity {
+        let entity = ModelEntity(
+            mesh: .generateSphere(radius: 0.025),
+            materials: [SimpleMaterial(color: color, isMetallic: false)]
+        )
+        entity.name = name
+        entity.position = position
+        entity.generateCollisionShapes(recursive: true)
+        return entity
+    }
+
+    class Coordinator: NSObject {
+        var parent: PlantARView
+        weak var arView: ARView?
+
+        init(_ parent: PlantARView) {
+            self.parent = parent
+        }
+
+        @objc func handleTap(_ sender: UITapGestureRecognizer) {
+            guard let arView = arView else { return }
+
+            let location = sender.location(in: arView)
+
+            if let entity = arView.entity(at: location) {
+                switch entity.name.lowercased() {
+                case "roots":
+                    parent.selectedPart = PlantPart(name: "Roots", description: "Absorb water and minerals.")
+                case "stem":
+                    parent.selectedPart = PlantPart(name: "Stem", description: "Transports nutrients.")
+                case "leaves":
+                    parent.selectedPart = PlantPart(name: "Leaves", description: "Perform photosynthesis.")
+                case "flower":
+                    parent.selectedPart = PlantPart(name: "Flower", description: "Responsible for reproduction.")
+                default:
+                    break
+                }
+            }
+        }
+    }
+}
