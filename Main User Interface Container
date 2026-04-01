@@ -1,0 +1,21 @@
+import SwiftUI
+
+struct ContentView: View {
+    @State private var selectedPart: PlantPart?
+
+    var body: some View {
+        ZStack {
+            PlantARView(selectedPart: $selectedPart)
+                .ignoresSafeArea()
+
+            VStack {
+                Spacer()
+
+                if let part = selectedPart {
+                    InfoCardView(part: part)
+                        .padding()
+                }
+            }
+        }
+    }
+}
