@@ -38,6 +38,8 @@ struct Plant: Identifiable, Codable, Hashable {
     let scale: Float
     let yOffset: Float
     var xOffset: Float = 0.0
+    // Initial rotation applied when the model loads (Euler angles in radians: X, Y, Z)
+    var initialEulerAngles: SIMD3<Float> = [0, 0, 0]
 
     // AR Interaction
     var allowRotation: Bool = true
@@ -145,6 +147,7 @@ GROWING CONDITIONS: Roses prefer full sun (6+ hours daily), well-drained soil wi
         arImageReferenceName: "rose",
         scale: 0.003,
         yOffset: 0.02,
+        initialEulerAngles: [.pi, 0, 0],
         rootType: .fibrous,
         plantParts: [
             PlantPart(id: "petals", name: "Petals", scientificName: "Tepals", function: "Attract pollinators with color and scent", modelPartName: "Petals"),
@@ -192,7 +195,7 @@ GROWING CONDITIONS: Most orchids prefer indirect light, high humidity (50-70%), 
         availability: .yearRound,
         modelName: "orchid",
         arImageReferenceName: "orchid",
-        scale: 0.003,
+        scale: 0.005,
         yOffset: 0.02,
         rootType: .adventitious,
         plantParts: [
@@ -242,6 +245,7 @@ GROWING CONDITIONS: Lilies prefer full sun to partial shade, well-drained soil, 
         arImageReferenceName: "lilium",
         scale: 0.008,
         yOffset: 0.02,
+        initialEulerAngles: [.pi, 0, 0],
         rootType: .bulb,
         plantParts: [
             PlantPart(id: "stamen", name: "Stamen", scientificName: "Androecium", function: "Male reproductive organ producing pollen", modelPartName: "Stamen"),
@@ -289,8 +293,8 @@ SPECIAL ADAPTATION: African daisies exhibit nyctinasty - their flowers close at 
         availability: .seasonal,
         modelName: "africandaisy",
         arImageReferenceName: "africandaisy",
-        scale: 1.0,
-        yOffset: 0.0,
+        scale: 0.004,
+        yOffset: 0.02,
         rootType: .fibrous,
         plantParts: [
             PlantPart(id: "ray", name: "Ray Florets", scientificName: "Flores radii", function: "Attract pollinators (look like petals)", modelPartName: nil),
@@ -310,7 +314,7 @@ SPECIAL ADAPTATION: African daisies exhibit nyctinasty - their flowers close at 
         ]
     ),
 
-    // MARK: - Additional Plants (No AR Models Yet)
+    // MARK: - Additional Plants
 
     Plant(
         id: "sunflower",
@@ -337,8 +341,14 @@ USES: Seeds are edible and used for cooking oil. The plants can extract toxins f
         availability: .summerOnly,
         modelName: "sunflower",
         arImageReferenceName: "sunflower",
-        scale: 1.0,
-        yOffset: 0.0,
+        scale: 0.0008,
+        yOffset: 0.02,
+        // sunflower.usdz uses Z-up with no internal part rotations (unlike mustard).
+        // −90° X rotation maps USD Z-up → RealityKit Y-up (positive 90° aimed the flower
+        // toward the card; flipping to negative corrects the standing orientation).
+        // Scale 0.0008: part-level USD scale is ~189x (vs mustard's ~1.77x), so a
+        // much smaller app scale is needed to reach the same ~25 cm on-screen height.
+        initialEulerAngles: [-.pi/2, 0, 0],
         rootType: .taproot,
         plantParts: [
             PlantPart(id: "ray_florets", name: "Ray Florets", scientificName: "Flores ligulati", function: "Attract pollinators with bright yellow colour", modelPartName: "RayFlorets"),
@@ -951,6 +961,9 @@ USES: Mustard seeds are ground to make mustard condiment. The leaves are eaten a
         arImageReferenceName: "mustard",
         scale: 0.05,
         yOffset: 0.05,
+        // mustard.usdz has per-part baked 90° X rotations from Meshy/Blender export.
+        // 180° around X corrects the inversion caused by that bake + RealityKit's coordinate import.
+        initialEulerAngles: [.pi, 0, 0],
         rootType: .taproot,
         plantParts: [
             PlantPart(id: "mustard_flowers", name: "Flowers", scientificName: "Flores", function: "Attract pollinators with bright yellow petals and produce seeds", modelPartName: "Flowers"),
