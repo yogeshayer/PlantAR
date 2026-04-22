@@ -24,6 +24,10 @@ class PersistenceService: ObservableObject {
     @Published var plantOfTheDay: Plant?
     @Published var isSyncing = false
     @Published var studentSummaries: [StudentSummary] = []
+    /// Total scan count per plantID across all students in the class
+    @Published var classPlantScanCounts: [String: Int] = [:]
+    /// The 20 most recent scans across all students, newest first
+    @Published var recentScans: [RecentScanItem] = []
 
     private let db = Firestore.firestore()
     private var gardenListener: ListenerRegistration?
@@ -161,6 +165,16 @@ extension PersistenceService {
         let scannedCount: Int
         let quizCount: Int
         let averageScore: Float
+        /// plantID → quizCompleted; only contains plants the student has scanned
+        let scannedPlants: [String: Bool]
+    }
+
+    struct RecentScanItem: Identifiable {
+        let id: String  // Firestore doc ID
+        let studentName: String
+        let studentEmail: String
+        let plantID: String
+        let scannedDate: Date
     }
 
     /// Fetches all students in a class from Firestore and updates studentSummaries
@@ -191,7 +205,8 @@ extension PersistenceService {
                     email: email,
                     scannedCount: allRecords.count,
                     quizCount: completed.count,
-                    averageScore: avgScore
+                    averageScore: avgScore,
+                    scannedPlants: [:]
                 ))
             }
             let sorted = summaries.sorted { $0.averageScore > $1.averageScore }
