@@ -35,9 +35,19 @@ struct TeacherOverviewTab: View {
     @EnvironmentObject var teacherAuth: TeacherAuthService
     @EnvironmentObject var persistence: PersistenceService
     @State private var showingCopyAlert = false
+    @State private var isRefreshing = false
 
     var students: [PersistenceService.StudentSummary] {
         persistence.studentSummaries
+    }
+
+    private func refresh() {
+        guard let code = teacherAuth.classCode, !code.isEmpty else { return }
+        isRefreshing = true
+        Task {
+            await persistence.refreshStudentSummaries(for: code)
+            await MainActor.run { isRefreshing = false }
+        }
     }
 
     var body: some View {
@@ -45,16 +55,34 @@ struct TeacherOverviewTab: View {
             ScrollView {
                 VStack(spacing: PlantSpacing.xl) {
                     // Header
-                    VStack(alignment: .leading, spacing: PlantSpacing.xs) {
-                        Text("Dashboard")
-                            .font(.displayLarge)
-                            .foregroundColor(.textPrimary)
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: PlantSpacing.xs) {
+                            Text("Dashboard")
+                                .font(.displayLarge)
+                                .foregroundColor(.textPrimary)
 
-                        if let name = teacherAuth.teacherName {
-                            Text("Welcome, \(name)")
-                                .font(.bodyMedium)
-                                .foregroundColor(.textSecondary)
+                            if let name = teacherAuth.teacherName {
+                                Text("Welcome, \(name)")
+                                    .font(.bodyMedium)
+                                    .foregroundColor(.textSecondary)
+                            }
                         }
+                        Spacer()
+                        Button(action: refresh) {
+                            if isRefreshing {
+                                ProgressView()
+                                    .scaleEffect(0.9)
+                                    .frame(width: 36, height: 36)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.teacherBlue)
+                                    .frame(width: 36, height: 36)
+                                    .background(Color.teacherBlue.opacity(0.1))
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .disabled(isRefreshing || teacherAuth.classCode == nil)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, PlantSpacing.xl)
@@ -125,7 +153,14 @@ struct TeacherOverviewTab: View {
             Button("OK", role: .cancel) {}
         }
         .task {
-            await persistence.refreshStudentSummaries(for: teacherAuth.classCode ?? "")
+            if let code = teacherAuth.classCode, !code.isEmpty {
+                await persistence.refreshStudentSummaries(for: code)
+            }
+        }
+        .onChange(of: teacherAuth.classCode) { _, newCode in
+            if let code = newCode, !code.isEmpty {
+                Task { await persistence.refreshStudentSummaries(for: code) }
+            }
         }
     }
 }
