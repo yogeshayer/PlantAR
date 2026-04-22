@@ -167,8 +167,10 @@ struct TeacherOverviewTab: View {
             Button("OK", role: .cancel) {}
         }
         .task {
+
             // classCode may still be loading from Firestore at this point.
             // The onChange below handles the case where it arrives after the view appears.
+
             if let code = teacherAuth.classCode, !code.isEmpty {
                 await persistence.refreshStudentSummaries(for: code)
             }
