@@ -85,7 +85,21 @@ class OptimizedARManager: NSObject, ARSessionDelegate, ObservableObject {
         model.position.y = plant.yOffset
         model.position.x = plant.xOffset
         model.scale = [plant.scale, plant.scale, plant.scale]
-        
+
+        // Apply initial orientation (fixes models that are authored Y-flipped or sideways)
+        let rx = simd_quatf(angle: plant.initialEulerAngles.x, axis: [1, 0, 0])
+        let ry = simd_quatf(angle: plant.initialEulerAngles.y, axis: [0, 1, 0])
+        let rz = simd_quatf(angle: plant.initialEulerAngles.z, axis: [0, 0, 1])
+        model.orientation = rx * ry * rz
+
+        // Generate collision shapes, then strip them from any mesh that isn't a
+        // named plant part. Some USDZ files include a full-body texture overlay mesh
+        // (e.g. "Meshy_AI_...") at the same level as the part meshes; if it gets a
+        // collision shape it intercepts every tap before the named parts can be hit.
+        model.generateCollisionShapes(recursive: true)
+        let partNames = Set(plant.plantParts.compactMap { $0.modelPartName })
+        stripCollisionFromNonParts(in: model, partNames: partNames)
+
         pivot.addChild(model)
         anchorEntity.addChild(pivot)
         arView.scene.addAnchor(anchorEntity)
@@ -167,6 +181,22 @@ class OptimizedARManager: NSObject, ARSessionDelegate, ObservableObject {
         }
     }
     
+    /// Removes CollisionComponent from any entity whose name is not in the known
+    /// plant-part set, AND is not a descendant of such a part.
+    /// Propagating `ancestorIsKeptPart` ensures child meshes of named parts (common in
+    /// USDZ hierarchies where geometry lives one level below the named transform node)
+    /// remain hittable by ray casts.
+    private func stripCollisionFromNonParts(in entity: Entity, partNames: Set<String>, ancestorIsKeptPart: Bool = false) {
+        let isNamedPart = partNames.contains(entity.name)
+        let keepCollision = isNamedPart || ancestorIsKeptPart
+        if !keepCollision {
+            entity.components.remove(CollisionComponent.self)
+        }
+        for child in entity.children {
+            stripCollisionFromNonParts(in: child, partNames: partNames, ancestorIsKeptPart: keepCollision)
+        }
+    }
+
     private func findEntity(named name: String, in parent: Entity) -> Entity? {
         if parent.name == name {
             return parent
