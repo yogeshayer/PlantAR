@@ -2732,10 +2732,14 @@ struct ARScanView: View {
                     .padding(.bottom, 100)
                 } else {
                     if arManager.tappedPart == nil {
-                        HStack(spacing: 20) {
-                            HintBadge(icon: "hand.pinch", text: "Zoom")
-                            HintBadge(icon: "hand.draw", text: "Rotate")
-                            HintBadge(icon: "hand.tap", text: "Tap parts")
+                        VStack(spacing: 10) {
+                            HStack(spacing: 20) {
+                                HintBadge(icon: "hand.pinch", text: "Zoom")
+                                HintBadge(icon: "hand.draw", text: "Rotate")
+                            }
+                            if let plant = detectedPlant {
+                                PartTapGuide(plant: plant)
+                            }
                         }
                         .padding(.bottom, 100)
                         .transition(.opacity)
