@@ -217,19 +217,29 @@ struct QuizOptionButtonStyle: ButtonStyle {
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.bodyLarge)
-            .foregroundColor(.textPrimary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(PlantSpacing.lg)
-            .background(backgroundColor)
-            .cornerRadius(PlantRadius.md)
-            .overlay(
-                RoundedRectangle(cornerRadius: PlantRadius.md)
-                    .stroke(borderColor, lineWidth: isSelected || isCorrect != nil ? 2 : 0)
-            )
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+        HStack(spacing: PlantSpacing.sm) {
+            configuration.label
+                .font(.bodyLarge)
+                .foregroundColor(.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Icon alongside colour so colourblind users can tell correct from incorrect
+            if let isCorrect = isCorrect {
+                Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(isCorrect ? .botanicalSuccess : .botanicalError)
+                    .accessibilityLabel(isCorrect ? "Correct" : "Incorrect")
+            }
+        }
+        .padding(PlantSpacing.lg)
+        .background(backgroundColor)
+        .cornerRadius(PlantRadius.md)
+        .overlay(
+            RoundedRectangle(cornerRadius: PlantRadius.md)
+                .stroke(borderColor, lineWidth: isSelected || isCorrect != nil ? 2 : 0)
+        )
+        .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 

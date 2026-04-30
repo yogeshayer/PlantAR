@@ -6,6 +6,7 @@ import CoreLocation
 import PhotosUI
 import WebKit
 import UserNotifications
+import AVFoundation
 
 // MARK: - Location Manager
 
@@ -2871,6 +2872,9 @@ struct PartPopupOverlay: View {
     let onDismiss: () -> Void
     let onSeeAll: () -> Void
 
+    @State private var synthesizer = AVSpeechSynthesizer()
+    @State private var isSpeaking = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Pull handle
@@ -2884,7 +2888,7 @@ struct PartPopupOverlay: View {
             .padding(.top, 12)
             .padding(.bottom, 18)
 
-            // Name + dismiss
+            // Name + speaker + dismiss
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(part.name)
@@ -2896,7 +2900,20 @@ struct PartPopupOverlay: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                Button(action: onDismiss) {
+                Button(action: toggleSpeech) {
+                    Image(systemName: isSpeaking ? "speaker.wave.2.fill" : "speaker.wave.2")
+                        .font(.system(size: 20))
+                        .foregroundColor(.plantPrimary)
+                        .frame(width: 40, height: 40)
+                        .background(Color.plantPrimary.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel(isSpeaking ? "Stop speaking" : "Listen to description")
+                Button(action: {
+                    synthesizer.stopSpeaking(at: .immediate)
+                    isSpeaking = false
+                    onDismiss()
+                }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 26))
                         .foregroundColor(Color(.systemGray3))
@@ -2913,7 +2930,11 @@ struct PartPopupOverlay: View {
                 .padding(.top, 10)
 
             // Link to full anatomy sheet
-            Button(action: onSeeAll) {
+            Button(action: {
+                synthesizer.stopSpeaking(at: .immediate)
+                isSpeaking = false
+                onSeeAll()
+            }) {
                 HStack(spacing: 4) {
                     Text("View all plant anatomy")
                         .font(.system(size: 14, weight: .semibold))
@@ -2932,6 +2953,24 @@ struct PartPopupOverlay: View {
                 .fill(Color.white)
                 .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: -6)
         )
+        .onDisappear {
+            synthesizer.stopSpeaking(at: .immediate)
+            isSpeaking = false
+        }
+    }
+
+    private func toggleSpeech() {
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            isSpeaking = false
+        } else {
+            let utterance = AVSpeechUtterance(string: "\(part.name). \(part.function)")
+            utterance.rate = 0.5
+            utterance.pitchMultiplier = 1.0
+            utterance.volume = 1.0
+            synthesizer.speak(utterance)
+            isSpeaking = true
+        }
     }
 }
 
