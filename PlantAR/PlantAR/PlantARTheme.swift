@@ -223,7 +223,7 @@ struct QuizOptionButtonStyle: ButtonStyle {
                 .foregroundColor(.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Icon alongside color so colorblind users can distinguish correct/incorrect
+            // Icon alongside colour so colourblind users can tell correct from incorrect
             if let isCorrect = isCorrect {
                 Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
                     .font(.system(size: 20, weight: .semibold))
