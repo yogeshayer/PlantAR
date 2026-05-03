@@ -146,6 +146,7 @@ struct QuizView: View {
                 Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
                     .font(.system(size: 20))
                     .foregroundColor(isCorrect ? .botanicalSuccess : .botanicalError)
+                    .accessibilityLabel(isCorrect ? "Correct answer" : "Incorrect answer")
 
                 Text(isCorrect ? "Correct!" : "Not quite")
                     .font(.titleMedium)
